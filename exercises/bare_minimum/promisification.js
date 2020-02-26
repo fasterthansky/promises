@@ -1,12 +1,13 @@
 /**
  * Create the promise returning `Async` suffixed versions of the functions below,
  * Promisify them if you can, otherwise roll your own promise returning function
- */ 
+ */
 
 var fs = require('fs');
 var request = require('request');
 var crypto = require('crypto');
 var Promise = require('bluebird');
+
 
 // (1) Asyncronous HTTP request
 var getGitHubProfile = function(user, callback) {
@@ -15,7 +16,6 @@ var getGitHubProfile = function(user, callback) {
     headers: { 'User-Agent': 'request' },
     json: true  // will JSON.parse(body) for us
   };
-
   request.get(options, function(err, res, body) {
     if (err) {
       callback(err, null);
@@ -26,8 +26,10 @@ var getGitHubProfile = function(user, callback) {
     }
   });
 };
-
-var getGitHubProfileAsync; // TODO
+// var nodeStyle = require('./callbackReview.js');
+// var pluckFirstLineFromFileAsync = Promise.promisify(nodeStyle.pluckFirstLineFromFile)
+// var getStatusCodeAsync = Promise.promisify(nodeStyle.getStatusCode)
+var getGitHubProfileAsync = Promise.promisify(getGitHubProfile);
 
 
 // (2) Asyncronous token generation
@@ -38,25 +40,26 @@ var generateRandomToken = function(callback) {
   });
 };
 
-var generateRandomTokenAsync; // TODO
+var generateRandomTokenAsync = Promise.promisify(generateRandomToken);
 
 
 // (3) Asyncronous file manipulation
 var readFileAndMakeItFunny = function(filePath, callback) {
   fs.readFile(filePath, 'utf8', function(err, file) {
-    if (err) { return callback(err); }
-   
+    if (err) {
+      return callback(err);
+    }
     var funnyFile = file.split('\n')
       .map(function(line) {
         return line + ' lol';
       })
       .join('\n');
 
-    callback(funnyFile);
+    callback(null, funnyFile);
   });
 };
-
-var readFileAndMakeItFunnyAsync; // TODO
+// Promise.promisifyAll(fs);
+var readFileAndMakeItFunnyAsync = Promise.promisify(readFileAndMakeItFunny);
 
 // Export these functions so we can test them and reuse them in later exercises
 module.exports = {
@@ -64,3 +67,4 @@ module.exports = {
   generateRandomTokenAsync: generateRandomTokenAsync,
   readFileAndMakeItFunnyAsync: readFileAndMakeItFunnyAsync
 };
+
